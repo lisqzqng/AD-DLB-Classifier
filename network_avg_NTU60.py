@@ -45,7 +45,7 @@ if opt.file_train != '' and opt.file_test != '':
     file_train = opt.file_train
     file_test = opt.file_test
 else:
-    print('Will be using the default generated files files')
+    print('Will be using the default generated files')
 
 use_cuda = opt.use_cuda
 #argument block#
