@@ -14,11 +14,15 @@ stride_size = 2
 depth_2 = 64
 kernel_size_2 = 1
 num_hidden = 512
-num_labels = 120
+# num_labels = 120
 dims = 3
+NUM_FRAMES=70
+INP_SIZE_LSTM=87
+# NUM_FRAMES=100
+# INP_SIZE_LSTM=125
 
 class RigidNet120(nn.Module):
-    def __init__(self,  mod = 'RigidTransform', num_frames = 100, num_joints = 25):
+    def __init__(self,  mod = 'RigidTransform', num_frames=NUM_FRAMES, num_joints=25, num_labels=120):
         super(RigidNet120, self).__init__()
         self.num_channels = num_joints * dims
         self.mod = mod
@@ -37,7 +41,7 @@ class RigidNet120(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.5)
         )
-        self.LSTM = nn.LSTM(125, hidden_size=12, bidirectional =True)  
+        self.LSTM = nn.LSTM(INP_SIZE_LSTM, hidden_size=12, bidirectional =True)  
         self.pool=nn.MaxPool1d(kernel_size=2, stride=stride_size)
         self.fc1 = nn.Sequential(
             nn.Linear(depth_2*24, num_hidden),

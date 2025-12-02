@@ -5,9 +5,9 @@ from scipy.linalg import svd
 def CenteredScaled(X):
     X = X- np.mean(X)
    # the "centered" Frobenius norm
-    normX = np.linalg.norm(X,'fro') 
+    normX = np.linalg.norm(X,'fro')
     # scale to equal (unit) norm
-    if (normX !=0):
+    if (normX!=0):
         X = X / normX
 
     return X

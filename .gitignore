@@ -9,9 +9,21 @@ __pycache__/
 *.jpg
 *.pkl
 *.png
+*.pth
+*.pt
+
+# Model checkpoints / weights
+models/checkpoints/
+
+# training logs / results
+results/
+
+# data
+skeletons/
 
 # Distribution / packaging
 .Python
+runs/
 build/
 develop-eggs/
 dist/

@@ -1,6 +1,6 @@
 import sys
-
-sys.path.extend(['../'])
+import os
+sys.path.insert(0, os.getcwd())
 from data_gen.rotation import *
 from tqdm import tqdm
 

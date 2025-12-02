@@ -1,5 +1,6 @@
+import sys, os
+sys.path.insert(0, os.getcwd())
 import numpy as np
-import os 
 import copy 
 from scipy.interpolate import CubicSpline
 import math
@@ -13,10 +14,10 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--prot', default='xsub', type=str,help = 'xsub or xsetup')
 parser.add_argument('--save_raw', default=False, type=bool)
-parser.add_argument('--save_one_body', default=False, type=bool)
+parser.add_argument('--save_one_body', default=True, type=bool)
 parser.add_argument('--save_50x3',default=False,type=bool,help= 'Save in format: N_samples*N_frames*50x3')
-parser.add_argument('--num_frames',default=100,type=int,help='Number of frames to consider from source data')
-parser.add_argument('--num_frames_interp',default=100,type=int,help='Target Number of frames')
+parser.add_argument('--num_frames',default=70,type=int,help='Number of frames to consider from source data')
+parser.add_argument('--num_frames_interp',default=70,type=int,help='Target Number of frames')
 opt = parser.parse_args()
 
 save_raw = opt.save_raw
@@ -31,7 +32,7 @@ prot = opt.prot
 if prot not in ['xsub','xsetup']:
     print('Invalid protocol for NTU60 will be using the cross_subject protocol')
     prot = 'xsub'
-path = '../data/nturgb_d120/{}/'.format(prot)
+path = './data/nturgb_d120/{}/'.format(prot)
 
 
 logmap = False #this one is useless but keep it as is. there was an old logmap code but didn't work, we'll update this file soon.
@@ -106,8 +107,8 @@ if do_train == True:
 
     train_data = None
     if save_raw == True:
-        np.save(os.path.join(path,'body1_train_{}_raw100.npy'.format(prot)),body_1)
-        np.save(os.path.join(path,'body2_train_{}_raw100.npy'.format(prot)),body_2)
+        np.save(os.path.join(path,'body1_train_{}_raw{}.npy'.format(prot, num_frames)),body_1)
+        np.save(os.path.join(path,'body2_train_{}_raw{}.npy'.format(prot, num_frames)),body_2)
 
     print('interpolating each body [train] before stacking')
     body_1 = interp_data(body_1, interp_frames = interp_frames)
@@ -115,13 +116,13 @@ if do_train == True:
 
     if save_one_body == True:
         print('saving interp bodies [train] before stacking')
-        np.save(os.path.join(path,'body1_train_{}_interp100.npy'.format(prot)),body_1)
-        np.save(os.path.join(path,'body2_train_{}_interp100.npy'.format(prot)),body_2)
+        np.save(os.path.join(path,'body1_train_{}_interp{}.npy'.format(prot, num_frames)),body_1)
+        np.save(os.path.join(path,'body2_train_{}_interp{}.npy'.format(prot, num_frames)),body_2)
 
     if save_joints_sep == True:
         new_train_data_stacked = np.concatenate((body_1,body_2),axis = 2)
         print('Stacked 50x3 data shape: {}'.format(new_train_data_stacked.shape))
-        np.save(os.path.join(path,'train_{}_interp100_50x3.npy'.format(prot)),new_train_data_stacked)
+        np.save(os.path.join(path,'train_{}_interp{}_50x3.npy'.format(prot, num_frames)),new_train_data_stacked)
 
     body_1 = body_1.reshape(body_1.shape[0],interp_frames,joints*dims)
     body_2 = body_2.reshape(body_2.shape[0],interp_frames,joints*dims)
@@ -151,8 +152,8 @@ if do_test == True:
     test_data = None
 
     if save_raw == True:
-        np.save(os.path.join(path,'body1_test_{}_raw100.npy'.format(prot)),body_1)
-        np.save(os.path.join(path,'body2_test_{}_raw100.npy'.format(prot)),body_2)
+        np.save(os.path.join(path,'body1_test_{}_raw{}.npy'.format(prot, num_frames)),body_1)
+        np.save(os.path.join(path,'body2_test_{}_raw{}.npy'.format(prot, num_frames)),body_2)
 
     print('interpolating each body [test] before stacking')
     body_1 = interp_data(body_1, interp_frames = interp_frames)
@@ -160,13 +161,13 @@ if do_test == True:
 
     if save_one_body == True:
         print('saving interp bodies [test] before stacking')
-        np.save(os.path.join(path,'body1_test_{}_interp100.npy'.format(prot)),body_1)
-        np.save(os.path.join(path,'body2_test_{}_interp100.npy'.format(prot)),body_2)
+        np.save(os.path.join(path,'body1_test_{}_interp{}.npy'.format(prot, num_frames)),body_1)
+        np.save(os.path.join(path,'body2_test_{}_interp{}.npy'.format(prot, num_frames)),body_2)
         
     if save_joints_sep == True:
         new_test_data_stacked = np.concatenate((body_1,body_2),axis = 2)
         print('Stacked 50x3 data shape: {}'.format(new_test_data_stacked.shape))
-        np.save(os.path.join(path,'test_{}_interp100_50x3.npy'.format(prot)),new_test_data_stacked)
+        np.save(os.path.join(path,'test_{}_interp{}_50x3.npy'.format(prot, num_frames)),new_test_data_stacked)
 
     body_1 = body_1.reshape(body_1.shape[0],interp_frames,joints*dims)
     body_2 = body_2.reshape(body_2.shape[0],interp_frames,joints*dims)

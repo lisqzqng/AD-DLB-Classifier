@@ -56,7 +56,7 @@ if opt.checkpoint != '':
 
 if opt.data_path != '' and opt.label_path != '':
     X_test = np.load(data_path, allow_pickle=True)
-    y_test = np.load(label_path, allow_pickle=True)
+    y_test = np.load(opt.label_path, allow_pickle=True)
     y_test = y_test[1]
     y_test = np.array(y_test).astype('int32')
 else:

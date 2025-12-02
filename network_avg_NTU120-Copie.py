@@ -38,8 +38,8 @@ if prot not in ['xsub','xsetup']:
     prot = 'xsub'
 
 dir = './data/nturgb_d120/{}/'.format(prot)
-file_train = 'train_{}_interp100.npy'.format(prot)
-file_test = 'test_{}_interp100.npy'.format(prot)
+file_train = 'body1_train_{}_interp70.npy'.format(prot)
+file_test = 'body1_test_{}_interp70.npy'.format(prot)
 
 
 if opt.file_train != '' and opt.file_test != '':
@@ -60,7 +60,7 @@ else:
     print('NOT using CUDA')
 
 rigid = True #will be changed based on model name
-options=['RigidTransform','NonRigidTransform','RigidTransformInit','NonRigidTransformInit']
+options=['RigidTransform',] #'NonRigidTransform','RigidTransformInit','NonRigidTransformInit']
 
 
 training_epochs= opt.num_epoch
@@ -77,6 +77,23 @@ X_train = np.load(os.path.join(dir,file_train),  allow_pickle=True)
 X_test = np.load(os.path.join(dir,file_test), allow_pickle=True)
 y_train = np.load(os.path.join(dir,'train_label.pkl'), allow_pickle=True)
 y_test = np.load(os.path.join(dir,'val_label.pkl'), allow_pickle=True)
+
+# class id starts from 1
+mutual_action = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 106, 107, 108, 109, 110, 111, 112, 113,
+114, 115, 116, 117, 118, 119, 120]
+mutual_action = [x-1 for x in mutual_action]
+
+train_valid_idx = np.where(np.isin(y_train[1], mutual_action) == False)[0]
+test_valid_idx = np.where(np.isin(y_test[1], mutual_action) == False)[0]
+
+X_train = copy.deepcopy(X_train[train_valid_idx])
+train_names = copy.deepcopy(np.array(y_train[0]))[train_valid_idx]
+train_labels = copy.deepcopy(np.array(y_train[1]))[train_valid_idx]
+y_train = (train_names, train_labels)
+X_test = copy.deepcopy(X_test[test_valid_idx])
+test_names = copy.deepcopy(np.array(y_test[0]))[test_valid_idx]
+test_labels = copy.deepcopy(np.array(y_test[1]))[test_valid_idx]
+y_test = (test_names, test_labels)
 
 print("--------------------------------------")
 print (X_train.shape)
@@ -98,7 +115,8 @@ y_test = y_test[1]
 y_train = np.array(y_train).astype('int32')
 y_test = np.array(y_test).astype('int32')
 
-num_labels = 120
+num_labels = len(set(y_train))
+print('Number of labels: {}'.format(num_labels))
 print(y_train.shape)
 
 ref_skel = copy.deepcopy(X_train[0,0])

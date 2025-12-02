@@ -4,7 +4,7 @@ import os
 from scipy.interpolate import CubicSpline
 import math
 import time
-skel_path = '../data/nturgb_d/xsub/'
+skel_path = './data/nturgb_d/xsub/'
 
 #Must have data in shape: N_samples,N_frames,N_joints,N_dims(=3)
 
