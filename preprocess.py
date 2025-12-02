@@ -14,17 +14,13 @@ import pandas as pd
 
 import re
 
-# BASE_DIR = "/home/dw/Documents/DAMoS/Code/VIBE/data/vpare_db/skeletons/10-fold/"
-# updrs_fp = "/home/dw/Documents/DAMoS/Code/Vita-CLIP/datasets/hospital/annotations/updrs.csv"
-# diag_fp = "/home/dw/Documents/DAMoS/Code/Vita-CLIP/datasets/hospital/annotations/diag.csv"
-# label_fp = "/home/dw/Documents/DAMoS/Code/Vita-CLIP/data/label_118.xlsx"
-# label_fp = "/home/dw/Documents/DAMoS/Code/Vita-CLIP/data/tulip_label_60.xlsx"
-## Hyperparameters JBHI
+
+######## Arguments ########
 SEQLEN = 70
 STRIDE = 30
 MIN_REST = 20
 FOLD = 1
-## Hyperparameters AMAI2023
+## Arguments AMAI2023
 # SEQLEN = 100
 # STRIDE = 50
 # MIN_REST = 50
@@ -34,15 +30,11 @@ os.makedirs(osp.dirname(save_dir), exist_ok=True)
 save_fp_format = save_dir + '{:s}*{:s}.pkl' # train or valid
 # get_updrs_3cls = lambda x: x if x>3 else 2
 # get_diag_3cls = lambda x: x if x<2 else (1 if x==3 else 2)
+######## End of arguments ########
 
-## Load the annotations into dictionary
-# df = pd.read_excel(label_fp, sheet_name='label_info', engine='openpyxl')
-# annos_label = pd.DataFrame(df, columns=['vidname', 'diag', 'score']).to_numpy()
-
-# for jsonpath in tqdm([osp.join('skeletons',x) for x in os.listdir('skeletons') if 'kinectv2_657.json' in x]):
-for jsonpath in tqdm(['skeletons/wham_skeletons_kinectv2_robtulip_transl.json']):
+for jsonpath in tqdm([osp.join('skeletons',x) for x in os.listdir('skeletons') if x.endswith('json')]):
     info = joblib.load(jsonpath)
-    keys = ['vidname', 'score', 'diag', 'isbackward', 'patientid']
+    keys = ['vidname', 'score', 'diag',] #[]'isbackward', 'patientid']
     out_dict = {k:[] for k in keys}
     subjects = list(set([x.split('_')[1] for x in info.keys() if x.startswith('vid')]))
     subjects.extend(list(set(['_'.join(x.split('_')[:2]) for x in info.keys() if x.startswith('Subject_')])))
@@ -51,14 +43,14 @@ for jsonpath in tqdm(['skeletons/wham_skeletons_kinectv2_robtulip_transl.json'])
         out_dict['vidname'].append(k)
         out_dict['score'].append(v['gait_score'])
         out_dict['diag'].append(v['diag'])
-        out_dict['isbackward'].append(0)
+        # out_dict['isbackward'].append(0)
         # find the subject id with subjects
         if k.startswith('OAW'):
             sid = int(k[3:5])
         else:
             sid = k.split('_')[1] if k.startswith('vid') else '_'.join(k.split('_')[:2])
         subj_id = subjects.index(sid)
-        out_dict['patientid'].append(subj_id)
+        # out_dict['patientid'].append(subj_id)
     # save to csv
     out_df = pd.DataFrame(out_dict)
     out_df.to_csv(jsonpath.replace('.json', '.csv'), index=False)
@@ -121,6 +113,7 @@ for jsonpath in tqdm(['skeletons/wham_skeletons_kinectv2_robtulip_transl.json'])
             d['data'] = cdata
             d['vid_name'] = name+f'*{idx}'
             All_train.append(copy.deepcopy(d))
+        # =====> Using a seperate sliding-window strategy for validation 
         # for tidx, c in enumerate(index_valid):
         #     start, end = c, c+SEQLEN
         #     cdata = copy.deepcopy(data[start:end])

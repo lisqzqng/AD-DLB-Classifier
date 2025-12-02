@@ -33,6 +33,8 @@ import os.path as osp
 
 dic = {'updrs':4,'diag':5,'diag_3cls':3,'ad':2, 'updrs_3cls':3} 
 os.system('clear')
+
+######## Arguments ########
 # OUTPUT_DIR = os.path.join('results', time.strftime('%d-%m-%y_%Hh%Mm%S'))
 OUTPUT_DIR = './results/JBHI-rev3'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -54,11 +56,14 @@ with open(split_name_fp,'r') as f:
 #     for j in range(len(subjects)):
 #         if j!=i:
 #             split_names[i]['train'].extend(['Subject_'+str(subjects[j])+'*amera{:d}'.format(k) for k in range(1,7)])
-split_names = [split_names]
-# n_cv = len(split_names.keys())
-n_cv = 1
+enable_ncv = False # Enable `n_cv` times nfold cross-validation, average over `n_cv` for final results
+if enable_ncv:
+    n_cv = len(split_names.keys())
+else:
+    split_names = [split_names]
+    n_cv = 1
 FOLD = len(split_names[0].keys())
-########End of arguments##########
+######## End of arguments ##########
 
 torch.manual_seed(seed)
 def load_model(num_classes, calculate_params=False):
